@@ -55,6 +55,21 @@ describe('ContentList', () => {
     expect(screen.getAllByTestId('skeleton-card')).toHaveLength(12);
   });
 
+  it('shows empty grid when no filtered items', () => {
+    const emptyState = {
+      ...mockState,
+      content: { 
+        ...mockState.content, 
+        allItems: [{ id: '1', title: 'Item', creator: 'Test', imagePath: 'test.jpg', pricingOption: 0 }], 
+        filteredItems: [], 
+        isLoading: false 
+      },
+    };
+    renderWithProvider(<ContentList />, { initialState: emptyState });
+    expect(screen.getByTestId('infinite-scroll')).toBeInTheDocument();
+    expect(screen.queryByTestId('content-card')).not.toBeInTheDocument();
+  });
+
   it('renders content cards when items exist', () => {
     const withItemsState = {
       ...mockState,

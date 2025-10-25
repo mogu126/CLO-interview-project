@@ -38,7 +38,7 @@ describe('App', () => {
     ];
     
     // Check if components appear in DOM order
-    components.forEach((component, index) => {
+    components.forEach((component) => {
       expect(component).toBeInTheDocument();
     });
   });
