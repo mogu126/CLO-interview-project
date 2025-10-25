@@ -7,10 +7,10 @@
 npm install
 
 # Start development server
-npm run dev
+npm start
 ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `http://localhost:3000`
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
