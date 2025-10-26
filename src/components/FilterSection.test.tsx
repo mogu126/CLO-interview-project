@@ -14,6 +14,7 @@ describe('FilterSection', () => {
       isLoading: false,
       searchKeyword: '',
       sortBy: 'title',
+      priceRange: { min: 0, max: 999 },
     },
   };
 
@@ -69,5 +70,39 @@ describe('FilterSection', () => {
     const state = store.getState();
     expect(state.content.selectedPricing).toEqual([]);
     expect(state.content.searchKeyword).toBe('');
+  });
+
+  it('disables pricing slider when Free or View Only is selected', () => {
+    const stateWithFree = {
+      ...mockState,
+      content: { ...mockState.content, selectedPricing: [1] },
+    };
+    renderWithProvider(<FilterSection />, { initialState: stateWithFree });
+    
+    const sliders = screen.getAllByRole('slider');
+    expect(sliders[0]).toBeDisabled();
+    expect(sliders[1]).toBeDisabled();
+  });
+
+  it('enables pricing slider when only Paid is selected', () => {
+    const stateWithPaid = {
+      ...mockState,
+      content: { ...mockState.content, selectedPricing: [0] },
+    };
+    renderWithProvider(<FilterSection />, { initialState: stateWithPaid });
+    
+    const sliders = screen.getAllByRole('slider');
+    expect(sliders[0]).not.toBeDisabled();
+    expect(sliders[1]).not.toBeDisabled();
+  });
+
+  it('resets price range when Free or View Only is selected', () => {
+    const { store } = renderWithProvider(<FilterSection />, { initialState: mockState });
+    
+    const freeCheckbox = screen.getByRole('checkbox', { name: /free/i });
+    fireEvent.click(freeCheckbox);
+    
+    const state = store.getState();
+    expect(state.content.priceRange).toEqual({ min: 0, max: 999 });
   });
 });

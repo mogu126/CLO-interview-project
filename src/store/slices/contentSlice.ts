@@ -3,7 +3,7 @@ import { fetchContentList } from '../../services/contentService';
 import type { ContentItem, FilterState, PricingOption, SortOption } from '../../types';
 
 
-const initialState: FilterState & { allItems: ContentItem[]; filteredItems: ContentItem[] } = {
+const initialState: FilterState & { allItems: ContentItem[]; filteredItems: ContentItem[]; priceRange: { min: number; max: number } } = {
   allItems: [], // all fetched data
   filteredItems: [], // data after applying filters and search
   selectedPricing: [], // selected pricing options
@@ -12,6 +12,7 @@ const initialState: FilterState & { allItems: ContentItem[]; filteredItems: Cont
   totalItems: 0, // total items count
   isLoading: false,
   sortBy: 'name' as SortOption, // default sort by name
+  priceRange: { min: 0, max: 999 }, // price range for slider
 };
 
 
@@ -39,7 +40,7 @@ const contentSlice = createSlice({
     setSelectedPricing: (state, action: PayloadAction<PricingOption[]>) => {
       state.selectedPricing = action.payload;
       state.currentPage = 1; // reset current page
-      const filtered = applyFilters(state.allItems, action.payload, state.searchKeyword);
+      const filtered = applyFilters(state.allItems, action.payload, state.searchKeyword, state.priceRange);
       state.filteredItems = applySorting(filtered, state.sortBy);
     },
     // update list based on search keyword
@@ -47,14 +48,21 @@ const contentSlice = createSlice({
     
       state.searchKeyword = action.payload;
       state.currentPage = 1; // reset current page
-      const filtered = applyFilters(state.allItems, state.selectedPricing, action.payload);
+      const filtered = applyFilters(state.allItems, state.selectedPricing, action.payload, state.priceRange);
       state.filteredItems = applySorting(filtered, state.sortBy);
     },
     // set sort option
     setSortBy: (state, action: PayloadAction<SortOption>) => {
       state.sortBy = action.payload;
-      const filtered = applyFilters(state.allItems, state.selectedPricing, state.searchKeyword);
+      const filtered = applyFilters(state.allItems, state.selectedPricing, state.searchKeyword, state.priceRange);
       state.filteredItems = applySorting(filtered, action.payload);
+    },
+    // set price range
+    setPriceRange: (state, action: PayloadAction<{ min: number; max: number }>) => {
+      state.priceRange = action.payload;
+      state.currentPage = 1;
+      const filtered = applyFilters(state.allItems, state.selectedPricing, state.searchKeyword, action.payload);
+      state.filteredItems = applySorting(filtered, state.sortBy);
     },
     // reset all filters
     resetFilters: (state) => {
@@ -62,6 +70,7 @@ const contentSlice = createSlice({
       state.searchKeyword = '';
       state.currentPage = 1;
       state.sortBy = 'name';
+      state.priceRange = { min: 0, max: 999 };
       state.filteredItems = applySorting(state.allItems, 'name');
     },
   },
@@ -78,7 +87,7 @@ const contentSlice = createSlice({
         state.totalItems = action.payload.total;
         state.isLoading = false;
         // apply current filters and search
-        const filtered = applyFilters(state.allItems, state.selectedPricing, state.searchKeyword);
+        const filtered = applyFilters(state.allItems, state.selectedPricing, state.searchKeyword, state.priceRange);
         state.filteredItems = applySorting(filtered, state.sortBy);
       })
       .addCase(fetchContents.rejected, (state) => {
@@ -97,7 +106,8 @@ const contentSlice = createSlice({
 const applyFilters = (
   items: ContentItem[],
   selectedPricing: PricingOption[],
-  keyword: string
+  keyword: string,
+  priceRange: { min: number; max: number }
 ): ContentItem[] => {
   let result = [...items];
 
@@ -122,6 +132,14 @@ const applyFilters = (
     );
     
   }
+
+  // 3. price range filter (only for paid items)
+  result = result.filter((item) => {
+    if (item.pricingOption === 0 && item.price !== undefined) {
+      return item.price >= priceRange.min && item.price <= priceRange.max;
+    }
+    return true; // non-paid items are not filtered by price
+  });
 
   return result;
 };
@@ -162,7 +180,7 @@ const applySorting = (items: ContentItem[], sortBy: SortOption): ContentItem[] =
   }
 };
 
-export const { setSelectedPricing, setSearchKeyword, resetFilters, setSortBy } = contentSlice.actions;
+export const { setSelectedPricing, setSearchKeyword, resetFilters, setSortBy, setPriceRange } = contentSlice.actions;
 
 
 export default contentSlice.reducer;

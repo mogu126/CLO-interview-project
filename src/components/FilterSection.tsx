@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { setSelectedPricing, resetFilters } from '../store/slices/contentSlice';
+import { setSelectedPricing, resetFilters, setPriceRange } from '../store/slices/contentSlice';
 import type { AppDispatch, RootState } from '../store';
 import type { PricingOption } from '../types';
+import PricingSlider from './PricingSlider';
 
 
 
@@ -38,8 +39,22 @@ const PricingOptions = styled.div`
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  
 `;
+
+const SliderSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  @media (max-width: 550px) {
+    width: 100%;
+    order: 2;
+    justify-content: flex-start;
+    
+  }
+
+`;
+
 
 const PricingOptionItem = styled.label`
   display: flex;
@@ -86,6 +101,9 @@ const ResetButton = styled.button`
 const FilterSection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedPricing } = useSelector((state: RootState) => state.content);
+  
+  const isFreeOrViewOnlySelected = selectedPricing.includes(1) || selectedPricing.includes(2);
+  const isPaidSelected = selectedPricing.includes(0);
 
 
    const pricingOptions: { value: PricingOption; label: string }[] = [
@@ -104,6 +122,11 @@ const FilterSection: React.FC = () => {
       : [...selectedPricing, value]; // add new selection
 
     dispatch(setSelectedPricing(newSelected));
+    
+    // Reset price range when Free or View Only is selected
+    if ((value === 1 || value === 2) && newSelected.includes(value)) {
+      dispatch(setPriceRange({ min: 0, max: 999 }));
+    }
   };
 
   return (
@@ -128,6 +151,9 @@ const FilterSection: React.FC = () => {
            
           )}
         </PricingOptions>
+        <SliderSection>
+          <PricingSlider disabled={isFreeOrViewOnlySelected || !isPaidSelected} />
+        </SliderSection>
         <ResetButton onClick={() => dispatch(resetFilters())}>RESET</ResetButton>
       </FilterRow>
     </FilterContainer>
