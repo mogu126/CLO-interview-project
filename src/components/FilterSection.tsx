@@ -26,6 +26,12 @@ const FilterRow = styled.div`
   align-items: center;
   gap: 32px;
   flex-wrap: wrap;
+  
+  @media (max-width: 550px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
 `;
 
 const PricingOptions = styled.div`
@@ -54,20 +60,25 @@ const PricingOptionItem = styled.label`
 `;
 
 const ResetButton = styled.button`
-  padding: 8px 16px;
   background-color: #131116;
   color: #828185;
   border-radius: 4px;
   font-size: 14px;
   position: absolute;
-  right: 0;
+  right: 16px;
 
   &:hover {
-    background-color: #0056b3;
+    color: #0056b3;
   }
 
   &:active {
-    background-color: #004085;
+    color: #004085;
+  }
+  
+  @media (max-width: 550px) {
+    position: static;
+    align-self: flex-start;
+    order: 3;
   }
 `;
 

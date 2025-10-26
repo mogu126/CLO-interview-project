@@ -30,6 +30,11 @@ const SearchIcon = styled.div`
   color: #828185;
   width: 25px;
   height: 25px;
+  cursor: pointer;
+  
+  &:hover {
+    color: #0056b3;
+  }
   
   svg {
     width: 100%;
