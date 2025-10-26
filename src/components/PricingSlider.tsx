@@ -28,12 +28,12 @@ const SliderTrack = styled.div`
   border-radius: 2px;
 `;
 
-const SliderRange = styled.div<{ left: number; width: number }>`
+const SliderRange = styled.div<{ $left: number; $width: number }>`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  left: ${props => props.left}%;
-  width: ${props => props.width}%;
+  left: ${props => props.$left}%;
+  width: ${props => props.$width}%;
   height: 4px;
   background-color: #0056b3;
   border-radius: 2px;
@@ -70,11 +70,11 @@ const SliderHandle = styled.input`
   }
 `;
 
-const PriceLabel = styled.span<{ align?: string }>`
+const PriceLabel = styled.span<{ $align?: string }>`
   font-size: 12px;
   color: #828185;
   min-width: 30px;
-  text-align: ${props => props.align || 'left'};
+  text-align: ${props => props.$align || 'left'};
 `;
 
 interface PricingSliderProps {
@@ -112,10 +112,10 @@ const PricingSlider: React.FC<PricingSliderProps> = ({ disabled }) => {
 
   return (
     <SliderContainer disabled={disabled}>
-      <PriceLabel align="right">${minValue}</PriceLabel>
+      <PriceLabel $align="right">${minValue}</PriceLabel>
       <SliderWrapper>
         <SliderTrack />
-        <SliderRange left={leftPercent} width={widthPercent} />
+        <SliderRange $left={leftPercent} $width={widthPercent} />
         <SliderHandle
           type="range"
           min="0"
